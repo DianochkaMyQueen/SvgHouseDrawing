@@ -76,40 +76,8 @@ paper.appendChild(fr);
 // =========
 // Events
 // =========
-d.addEventListener("mousedown", function(e) {
-
-	if(e.buttons !== 1) { return; } // terminate if not LMB
-	var	evX = e.x || e.clientX,
-		evY = e.y || e.clientY,
-		col = m.floor(evY / 50) * 50 > 1 ? m.round(evY / 50) * 50 : 50,
-		row = m.floor(evX / 50) * 50 > 1 ? m.round(evX / 50) * 50 : 50,
-		targetPointXY = {x, y},
-		point;
-
-	// var x1, y2, x2, y2, x3, y3, x4, y4,
-	// x3 = x1 = evX <= 30 ? evX : evX - 10;
-	// x2 = x4 = x - evX <= 30 ? evX : evX + 10;
-
-	// y2 = y1 = evY <= 30 ? evY: evY - 10;
-	// y4 = y3 = 50 - evY <= 30 ? evY : evY + 10;
-
-	if(col && row ) {
-		if(((evY >= col-20 && evY <= col) || (evY <= col+20 && evY >= col)) && 
-			(evX >= row - 20 && evX <= row) || (evX <= row+20 && evX >= row)) {
-			targetPointXY.x = row;	
-			targetPointXY.y = col;
-
-			console.log(targetPointXY);
-			point = d.elementFromPoint(targetPointXY.x, targetPointXY.y);
-			point[setAttr]("fill", "red");
-
-			// d.addEventListener("mousemove", function(e) {
-			// 	// console.log(e);
-			// });
-
-		}
-	}
-});
+d.addEventListener("mousedown", findPoint, false);
+// d.removeEventListener("mouseup", findEndPoint); // remove last mouseup event heandler from "findPoint"
 
 // =========
 // Methods
@@ -130,5 +98,49 @@ function createPoint(x, y) {
 }
 
 // =====
-// Func1
+// Func2
 // =====
+function findPoint(e) {
+	if(e.buttons !== 1) { return; } // terminate if not LMB
+	var	evX = e.x || e.clientX,
+		evY = e.y || e.clientY,
+		col = m.floor(evY / 50) * 50 > 1 ? m.round(evY / 50) * 50 : 50,
+		row = m.floor(evX / 50) * 50 > 1 ? m.round(evX / 50) * 50 : 50,
+		targetPointXY = {x, y},
+		point,
+		pointArray = [];
+
+	// var x1, y2, x2, y2, x3, y3, x4, y4,
+	// x3 = x1 = evX <= 30 ? evX : evX - 10;
+	// x2 = x4 = x - evX <= 30 ? evX : evX + 10;
+
+	// y2 = y1 = evY <= 30 ? evY: evY - 10;
+	// y4 = y3 = 50 - evY <= 30 ? evY : evY + 10;
+
+	if(col && ((evY >= col-20 && evY <= col) || (evY <= col+20 && evY >= col))) {
+		if(row && ((evX >= row - 20 && evX <= row) || (evX <= row+20 && evX >= row))) {
+			targetPointXY.x = row;	
+			targetPointXY.y = col;
+			point = d.elementFromPoint(targetPointXY.x, targetPointXY.y);
+
+			if(point.nodeName !== "svg") {
+				point[setAttr]("fill", "red");
+			}
+		}
+	}
+
+	var fnp = function(e) {
+		findNextPoint(e);
+	}
+
+	d.addEventListener("mousemove", fnp, false);
+
+
+}
+
+
+function findNextPoint(e) {
+
+	console.log("mmv");
+}
+yyy
