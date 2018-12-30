@@ -36,10 +36,15 @@
 // 3. 
 
 
+// =========
+// Glob Vars
+// =========
 	// Grid
 var CELL_WIDTH = 50,
 	CELL_HEIGHT = 50,
 	CELL_SCALE = 2, // 1 cell = 2 meters squered
+	px = 0, // +50 for each new grid point
+	py = 50, // +50 for each new grid point
 	// Document size
 	w = window,
     d = document,
@@ -53,31 +58,28 @@ var CELL_WIDTH = 50,
     // SVG
     paper = d.querySelector("#paper"),
     xmlns = "http://www.w3.org/2000/svg",
-    cSvgEl = "createElementNS";
-
+    cSvgEl = "createElementNS",
+	fr = d.createDocumentFragment(),
+	// 
+	pointArray = [];
 
 // Create pointed grid
-var	fr = d.createDocumentFragment(),
-	xx = 0,
-	yy = 50;
-
 for(var i = 0, cellYLength = m.round((y - 50) / CELL_HEIGHT); i < cellYLength; i++) {
 	for(var j = 0, cellXLength = m.round((x - 50) / CELL_WIDTH); j < cellXLength; j++) {
-		fr.appendChild(createPoint(xx+= CELL_WIDTH, yy));
-		// fr.appendChild(createPoint(xx + 24.5, yy + 24.5));
+		fr.appendChild(createPoint(px+= CELL_WIDTH, py));
 	}
-	yy+= CELL_HEIGHT;
-	xx = 0;
-
+	// increment for next column & reset start value of the last row point
+	py+= CELL_HEIGHT;
+	px = 0;
 }
+// append all points /w determined coordinates in a single auto-destroying
 paper.appendChild(fr);
-//
 
 // =========
 // Events
 // =========
 d.addEventListener("mousedown", findPoint, false);
-// d.removeEventListener("mouseup", findEndPoint); // remove last mouseup event heandler from "findPoint"
+// d.removeEventListener("mouseup", findNextPoint); // remove last mouseup event heandler from "findPoint"
 
 // =========
 // Methods
@@ -86,6 +88,8 @@ d.addEventListener("mousedown", findPoint, false);
 // =====
 // Func1
 // =====
+// Simply creates & appends attrs to a singe svg circle element
+// returns reference to the svg circle
 function createPoint(x, y) {
 	
 	var c = d[cSvgEl](xmlns, "circle");
@@ -100,15 +104,11 @@ function createPoint(x, y) {
 // =====
 // Func2
 // =====
+// Implements logic for ...
 function findPoint(e) {
 	if(e.buttons !== 1) { return; } // terminate if not LMB
-	var	evX = e.x || e.clientX,
-		evY = e.y || e.clientY,
-		col = m.floor(evY / 50) * 50 > 1 ? m.round(evY / 50) * 50 : 50,
-		row = m.floor(evX / 50) * 50 > 1 ? m.round(evX / 50) * 50 : 50,
-		targetPointXY = {x, y},
-		point,
-		pointArray = [];
+	// var	evX = e.x || e.clientX,
+		// evY = e.y || e.clientY,
 
 	// var x1, y2, x2, y2, x3, y3, x4, y4,
 	// x3 = x1 = evX <= 30 ? evX : evX - 10;
@@ -117,30 +117,45 @@ function findPoint(e) {
 	// y2 = y1 = evY <= 30 ? evY: evY - 10;
 	// y4 = y3 = 50 - evY <= 30 ? evY : evY + 10;
 
-	if(col && ((evY >= col-20 && evY <= col) || (evY <= col+20 && evY >= col))) {
-		if(row && ((evX >= row - 20 && evX <= row) || (evX <= row+20 && evX >= row))) {
+
+
+	var rmFNP = function(e) {
+		findNextPoint(e, pointArray);
+	};
+
+	d.addEventListener("mousemove", rmFNP, false);
+
+	// Terminates ...
+	d.addEventListener("mouseup", function rmMU(e) {
+		d.removeEventListener("mousemove", rmFNP);
+		d.removeEventListener("mouseup", rmMU);
+	}, false);
+}
+
+// =====
+// Func3
+// =====
+function findNextPoint(e ) {
+	var	endEvX = e.x || e.clientX,
+		endEvY = e.y || e.clientY,
+		point,
+		col = m.floor(endEvY / 50) * 50 > 1 ? m.round(endEvY / 50) * 50 : 50,
+		row = m.floor(endEvX / 50) * 50 > 1 ? m.round(endEvX / 50) * 50 : 50,
+		targetPointXY = {x, y};
+
+	if(col && ((endEvY >= col-10 && endEvY <= col) || (endEvY <= col+10 && endEvY >= col))) {
+		if(row && ((endEvX >= row - 10 && endEvX <= row) || (endEvX <= row+10 && endEvX >= row))) {
 			targetPointXY.x = row;	
 			targetPointXY.y = col;
 			point = d.elementFromPoint(targetPointXY.x, targetPointXY.y);
 
-			if(point.nodeName !== "svg") {
+			// console.log(point);
+
+			if(point.nodeName !== "svg" && point && point.attributes.fill.nodeValue !== "red") {
 				point[setAttr]("fill", "red");
+				pointArray.push(point);
+				point = null;
 			}
 		}
 	}
-
-	var fnp = function(e) {
-		findNextPoint(e);
-	}
-
-	d.addEventListener("mousemove", fnp, false);
-
-
 }
-
-
-function findNextPoint(e) {
-
-	console.log("mmv");
-}
-yyy
