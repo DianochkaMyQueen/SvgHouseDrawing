@@ -5,10 +5,10 @@
 "use strict";
 var CELL_WIDTH          = 35,
     CELL_HEIGHT 	= 35,
-    CELL_SCALE  	= 2, // 1 cell = 2 meters squered
+    // CELL_SCALE = 2,
     px 			= 0, // +35 for each new grid point
-    py 			= 35, // ^
-	// Document size
+    py 			= 35,
+    // Document size
     w 			= window,
     d 			= document,
     e 			= d.documentElement,
@@ -33,8 +33,6 @@ var CELL_WIDTH          = 35,
 // =========
 // Classes
 // =========
-
-// Point Class
 function Point(x, y, ref) {
 	this.x       = x; 
 	this.y       = y;
@@ -43,17 +41,14 @@ function Point(x, y, ref) {
 
 	return this;
 }
-
 Point.prototype.vector = function(p2) {
 	var v = {};
 	v.x   = p2.x - this.x;
 	v.y   = p2.y - this.y;
-
 	return v;
 }
 
 function initGrid() {
-
 // Create pointed grid
 for(var i = 0, cellYLength = round((y - 35) / CELL_HEIGHT); i < cellYLength; i++) {
 	for(var j = 0, cellXLength = round((x - 35) / CELL_WIDTH); j < cellXLength; j++) {
@@ -77,13 +72,10 @@ d.addEventListener("keypress", function(e) {
 	if(e.shiftKey && e.key === "R") {clearAll(); return;}
 }, false);
 
-
 // =========
 // Methods
 // =========
-
 function createPointRef(x, y) {
-	
 	var c = d[cSvgEl](xmlns, "circle");
 	c[setAttr]("cx", x);
 	c[setAttr]("cy", y);
@@ -97,17 +89,12 @@ function createPointRef(x, y) {
 function findPoint(e) {
 	if(e.buttons !== 1) { return; } // terminate if not LMB
 	// save func reference for removeEventListener
-	function rmFNP(e) {
-		findNextPoint(e);
-	}
+	function rmFNP(e) { findNextPoint(e); }
 
 	d.addEventListener("mousemove", rmFNP, false);
-
 	// Terminates ...
 	d.addEventListener("mouseup", function rmMU(e) {
-
 		// closePath();
-
 		// isOrigin = true;
 		tempPoint   = null;
 		originPoint = null;
@@ -117,7 +104,7 @@ function findPoint(e) {
 		d.removeEventListener("mouseup", rmMU);
 	}, false);
 
-	return 0;
+	return;
 }
 
 function findNextPoint(e) {
@@ -129,9 +116,8 @@ function findNextPoint(e) {
 	if(col && ((endY >= col - 15 && endY <= col) || (endY <= col + 10 && endY >= col))) {
 		if(row && ((endX >= row - 15 && endX <= row) || (endX <= row + 10 && endX >= row))) {
 
-
 			var vec = {},
-				point = new Point(row, col);
+			    point = new Point(row, col);
 
 			if(point.ref.nodeName !== "svg" ) {
 
@@ -148,13 +134,7 @@ function findNextPoint(e) {
 			}
 		}
 	}
-	return 0;
-}
-
-function calcVector(v) {
-
-
-
+	return;
 }
 
 function addMultiAttr(el, arr) {
@@ -173,8 +153,9 @@ function updatePath(vec) {
 		y2 = tempPoint.y + vec.y;
 
 	d += x1 + " " + y1 + " L" + x2 + " " + y2;
-
 	paper.insertAdjacentElement("afterbegin", createPath(d));
+	
+	return;
 }
 
 function createPath(d) {
@@ -188,22 +169,18 @@ function createPath(d) {
 	 ]);
 
 	return path;
-
 }
 
 function clearAll() {
-
 	var all = Array.prototype.slice.call(d.querySelectorAll("path"));
 	if (all.length) for (var i = 0, allL = all.length; i < allL; i++) {
 		if(all[i].nodeName === "path") paper.removeChild(all[i]);
 	}
+	return;
 }
 
 function clearPrev() {
-
 	var prev = paper.children[0];
-
 	if(prev && prev.nodeName === "path") paper.removeChild(prev);
-
 	return;
 }
