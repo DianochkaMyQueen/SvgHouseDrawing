@@ -3,13 +3,13 @@
 // =========
 
 "use strict";
-var CELL_WIDTH  = 35,
-	CELL_HEIGHT = 35,
-	CELL_SCALE  = 2, // 1 cell = 2 meters squered
-	px 			= 0, // +35 for each new grid point
-	py 			= 35, // ^
+var CELL_WIDTH          = 35,
+    CELL_HEIGHT 	= 35,
+    CELL_SCALE  	= 2, // 1 cell = 2 meters squered
+    px 			= 0, // +35 for each new grid point
+    py 			= 35, // ^
 	// Document size
-	w 			= window,
+    w 			= window,
     d 			= document,
     e 			= d.documentElement,
     g 			= d.getElementsByTagName('body')[0],
@@ -18,17 +18,17 @@ var CELL_WIDTH  = 35,
     // Document Methods
     m 			= Math,
     round 		= m.round,
-    setAttr 	= "setAttribute",
+    setAttr 		= "setAttribute",
     // SVG
     paper 		= d.querySelector("#paper"),
     xmlns 		= "http://www.w3.org/2000/svg",
     cSvgEl 		= "createElementNS",
-	fr 			= d.createDocumentFragment(),
-	tempPoint,
-	// isOrigin = true,
-	originPoint;
-	// endPoint;
-	// originPoint;
+    fr 			= d.createDocumentFragment(),
+    tempPoint,
+    // isOrigin = true,
+    originPoint;
+    // endPoint;    
+    // originPoint;
 
 // =========
 // Classes
@@ -36,10 +36,10 @@ var CELL_WIDTH  = 35,
 
 // Point Class
 function Point(x, y, ref) {
-	this.x   = x; 
-	this.y   = y;
+	this.x       = x; 
+	this.y       = y;
 	this.hasWall = false;
-	this.ref = d.elementFromPoint(this.x, this.y);
+	this.ref     = d.elementFromPoint(this.x, this.y);
 
 	return this;
 }
@@ -108,10 +108,10 @@ function findPoint(e) {
 
 		// closePath();
 
-		// isOrigin 	= true;
-		tempPoint	= null;
+		// isOrigin = true;
+		tempPoint   = null;
 		originPoint = null;
-		// endPoint 	= null;
+		// endPoint = null;
 
 		d.removeEventListener("mousemove", rmFNP);
 		d.removeEventListener("mouseup", rmMU);
@@ -123,8 +123,8 @@ function findPoint(e) {
 function findNextPoint(e) {
 	var	endX = e.x || e.clientX,
 		endY = e.y || e.clientY,
-		col    = round(endY / 35) * 35 > 1 ? round(endY / 35) * 35 : 35,
-		row    = round(endX / 35) * 35 > 1 ? round(endX / 35) * 35 : 35;
+		col  = round(endY / 35) * 35 > 1 ? round(endY / 35) * 35 : 35,
+		row  = round(endX / 35) * 35 > 1 ? round(endX / 35) * 35 : 35;
 
 	if(col && ((endY >= col - 15 && endY <= col) || (endY <= col + 10 && endY >= col))) {
 		if(row && ((endX >= row - 15 && endX <= row) || (endX <= row + 10 && endX >= row))) {
