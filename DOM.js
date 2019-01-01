@@ -207,6 +207,3 @@ function clearPrev() {
 
 	return;
 }
-
-alert("Press Shift + r to clear all paths\nPress r to clear a previous path");
-console.log("Press Shift + r to clear all paths\nPress r to clear a previous path");
