@@ -1,53 +1,13 @@
-// # Створити схему будинку
-
-// ---  ------------------
-// |		|			  | 
-// |		#			  |
-// |		|------  ------|
-// |					   |
-// |--   --|--- ---|--- ---| 
-// |		#		#		|
-// |		|		|		|
-// |		|		|		|
-// ---###-------------------
-
-// # Позначити назву кожної кімнати
-
-// ---  ------------------
-// |		|			  | 
-// |		#	Kitchen	  |
-// |		|------  ------|
-// |	holl			   |
-// |--   --|--- ---|--- ---| 
-// |		#		#		|
-// | Garage|  BR	|  BaR	|
-// |		|		|		|
-// ---###-------------------
-
-// # Структура Сайту
-
-// Home >> Demo >> Try It
-
-
-// # Інтерфейси
-
-// ??? 1. Консоль >> виводить допоміжні повідомлення з посиланнями на об*єкт
-// 2. Режими  >> Edit & Live
-// 3. 
-
-
 // =========
 // Glob Vars
 // =========
-	// Grid
-
 
 "use strict";
-var CELL_WIDTH  = 50,
-	CELL_HEIGHT = 50,
+var CELL_WIDTH  = 35,
+	CELL_HEIGHT = 35,
 	CELL_SCALE  = 2, // 1 cell = 2 meters squered
-	px 			= 0, // +50 for each new grid point
-	py 			= 50, // ^
+	px 			= 0, // +35 for each new grid point
+	py 			= 35, // ^
 	// Document size
 	w 			= window,
     d 			= document,
@@ -64,7 +24,11 @@ var CELL_WIDTH  = 50,
     xmlns 		= "http://www.w3.org/2000/svg",
     cSvgEl 		= "createElementNS",
 	fr 			= d.createDocumentFragment(),
-	tempPoint;
+	tempPoint,
+	// isOrigin = true,
+	originPoint;
+	// endPoint;
+	// originPoint;
 
 // =========
 // Classes
@@ -74,6 +38,7 @@ var CELL_WIDTH  = 50,
 function Point(x, y, ref) {
 	this.x   = x; 
 	this.y   = y;
+	this.hasWall = false;
 	this.ref = d.elementFromPoint(this.x, this.y);
 
 	return this;
@@ -90,8 +55,8 @@ Point.prototype.vector = function(p2) {
 function initGrid() {
 
 // Create pointed grid
-for(var i = 0, cellYLength = round((y - 50) / CELL_HEIGHT); i < cellYLength; i++) {
-	for(var j = 0, cellXLength = round((x - 50) / CELL_WIDTH); j < cellXLength; j++) {
+for(var i = 0, cellYLength = round((y - 35) / CELL_HEIGHT); i < cellYLength; i++) {
+	for(var j = 0, cellXLength = round((x - 35) / CELL_WIDTH); j < cellXLength; j++) {
 		fr.appendChild(createPointRef(px+= CELL_WIDTH, py));
 	}
 	py+= CELL_HEIGHT; // increment for next column & reset start value of the last row point
@@ -105,7 +70,13 @@ paper.appendChild(fr);
 // =========
 // Events
 // =========
-d.addEventListener("mousedown", findPoint, false);
+paper.addEventListener("mousedown", findPoint, false);
+
+d.addEventListener("keypress", function(e) {
+	if(e.key === "r") {clearPrev(); return;}
+	if(e.shiftKey && e.key === "R") {clearAll(); return;}
+}, false);
+
 
 // =========
 // Methods
@@ -125,7 +96,6 @@ function createPointRef(x, y) {
 // Implements logic for ...
 function findPoint(e) {
 	if(e.buttons !== 1) { return; } // terminate if not LMB
-
 	// save func reference for removeEventListener
 	function rmFNP(e) {
 		findNextPoint(e);
@@ -135,7 +105,14 @@ function findPoint(e) {
 
 	// Terminates ...
 	d.addEventListener("mouseup", function rmMU(e) {
-		tempPoint = null;
+
+		// closePath();
+
+		// isOrigin 	= true;
+		tempPoint	= null;
+		originPoint = null;
+		// endPoint 	= null;
+
 		d.removeEventListener("mousemove", rmFNP);
 		d.removeEventListener("mouseup", rmMU);
 	}, false);
@@ -146,24 +123,25 @@ function findPoint(e) {
 function findNextPoint(e) {
 	var	endX = e.x || e.clientX,
 		endY = e.y || e.clientY,
-		col    = round(endY / 50) * 50 > 1 ? round(endY / 50) * 50 : 50,
-		row    = round(endX / 50) * 50 > 1 ? round(endX / 50) * 50 : 50;
+		col    = round(endY / 35) * 35 > 1 ? round(endY / 35) * 35 : 35,
+		row    = round(endX / 35) * 35 > 1 ? round(endX / 35) * 35 : 35;
 
-	if(col && ((endY >= col-15 && endY <= col) || (endY <= col+10 && endY >= col))) {
-		if(row && ((endX >= row - 15 && endX <= row) || (endX <= row+10 && endX >= row))) {
+	if(col && ((endY >= col - 15 && endY <= col) || (endY <= col + 10 && endY >= col))) {
+		if(row && ((endX >= row - 15 && endX <= row) || (endX <= row + 10 && endX >= row))) {
+
 
 			var vec = {},
 				point = new Point(row, col);
 
-			if(point.ref.nodeName !== "svg" && point.ref.attributes.fill.nodeValue !== "red") {
+			if(point.ref.nodeName !== "svg" ) { // TODO
 
-				point.ref[setAttr]("fill", "red");
+				point.ref[setAttr]("fill", "#404040");
+
 				vec = tempPoint ? tempPoint.vector(point) : vec;
 				// Linear Interpolation
-				if (vec.x || vec.y) { updatePath(vec); }
+				if (vec.x || vec.y) { updatePath(vec);} // TODO
 
-				// Reset
-				tempPoint = vec ? point : tempPoint;
+				// Reset				tempPoint = vec ? point : tempPoint;
 				point = null;
 				vec = null;
 			}
@@ -187,21 +165,47 @@ function addMultiAttr(el, arr) {
 }
 
 function updatePath(vec) {
-	var path = document[cSvgEl](xmlns, "path"),
-	d = "M",
-	x1 = tempPoint.x, 
-	y1 = tempPoint.y, 
-	x2 = tempPoint.x + vec.x,
-	y2 = tempPoint.y + vec.y;
+	var d = "M",
+		x1 = tempPoint.x, 
+		y1 = tempPoint.y, 
+		x2 = tempPoint.x + vec.x,
+		y2 = tempPoint.y + vec.y;
 
 	d += x1 + " " + y1 + " L" + x2 + " " + y2;
 
+	paper.insertAdjacentElement("afterbegin", createPath(d));
+}
+
+function createPath(d) {
+	var path = document[cSvgEl](xmlns, "path");
+
 	addMultiAttr(path, [
 	 {style: "d", val: d},
-	 {style: "stroke", val: "red"},
-	 {style: "stroke-width", val: "1"},
-	 {style: "fill", val: "red"}
+	 {style: "stroke", val: "#404040"},
+	 {style: "stroke-width", val: "2"},
+	 {style: "fill", val: "#404040"}
 	 ]);
 
-	paper.insertAdjacentElement("afterbegin", path);
+	return path;
+
 }
+
+function clearAll() {
+
+	var all = Array.prototype.slice.call(d.querySelectorAll("path"));
+	if (all.length) for (var i = 0, allL = all.length; i < allL; i++) {
+		if(all[i].nodeName === "path") paper.removeChild(all[i]);
+	}
+}
+
+function clearPrev() {
+
+	var prev = paper.children[0];
+
+	if(prev && prev.nodeName === "path") paper.removeChild(prev);
+
+	return;
+}
+
+alert("Press Shift + r to clear all paths\nPress r to clear a previous path");
+console.log("Press Shift + r to clear all paths\nPress r to clear a previous path");
