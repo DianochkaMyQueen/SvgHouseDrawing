@@ -93,7 +93,7 @@ function createPointRef(x, y) {
 	return c;
 }
 
-// Implements logic for ...
+// Implements logic
 function findPoint(e) {
 	if(e.buttons !== 1) { return; } // terminate if not LMB
 	// save func reference for removeEventListener
@@ -133,15 +133,16 @@ function findNextPoint(e) {
 			var vec = {},
 				point = new Point(row, col);
 
-			if(point.ref.nodeName !== "svg" ) { // TODO
+			if(point.ref.nodeName !== "svg" ) {
 
 				point.ref[setAttr]("fill", "#404040");
 
 				vec = tempPoint ? tempPoint.vector(point) : vec;
 				// Linear Interpolation
-				if (vec.x || vec.y) { updatePath(vec);} // TODO
+				if (vec.x || vec.y) { updatePath(vec);}
 
-				// Reset				tempPoint = vec ? point : tempPoint;
+				// Reset				
+				tempPoint = vec ? point : tempPoint;
 				point = null;
 				vec = null;
 			}
