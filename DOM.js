@@ -40,57 +40,78 @@
 // Glob Vars
 // =========
 	// Grid
-var CELL_WIDTH = 50,
+
+
+"use strict";
+var CELL_WIDTH  = 50,
 	CELL_HEIGHT = 50,
-	CELL_SCALE = 2, // 1 cell = 2 meters squered
-	px = 0, // +50 for each new grid point
-	py = 50, // +50 for each new grid point
+	CELL_SCALE  = 2, // 1 cell = 2 meters squered
+	px 			= 0, // +50 for each new grid point
+	py 			= 50, // ^
 	// Document size
-	w = window,
-    d = document,
-    e = d.documentElement,
-    g = d.getElementsByTagName('body')[0],
-    x = (w.innerWidth || e.clientWidth || g.clientWidth)
-    y = (w.innerHeight|| e.clientHeight|| g.clientHeight)
+	w 			= window,
+    d 			= document,
+    e 			= d.documentElement,
+    g 			= d.getElementsByTagName('body')[0],
+    x 			= (w.innerWidth || e.clientWidth || g.clientWidth),
+    y 			= (w.innerHeight|| e.clientHeight|| g.clientHeight),
     // Document Methods
-    m = Math,
-    setAttr = "setAttribute",
+    m 			= Math,
+    round 		= m.round,
+    setAttr 	= "setAttribute",
     // SVG
-    paper = d.querySelector("#paper"),
-    xmlns = "http://www.w3.org/2000/svg",
-    cSvgEl = "createElementNS",
-	fr = d.createDocumentFragment(),
-	// 
-	pointArray = [];
+    paper 		= d.querySelector("#paper"),
+    xmlns 		= "http://www.w3.org/2000/svg",
+    cSvgEl 		= "createElementNS",
+	fr 			= d.createDocumentFragment(),
+	tempPoint;
+
+// =========
+// Classes
+// =========
+
+// Point Class
+function Point(x, y, ref) {
+	this.x   = x; 
+	this.y   = y;
+	this.ref = d.elementFromPoint(this.x, this.y);
+
+	return this;
+}
+
+Point.prototype.vector = function(p2) {
+	var v = {};
+	v.x   = p2.x - this.x;
+	v.y   = p2.y - this.y;
+
+	return v;
+}
+
+function initGrid() {
 
 // Create pointed grid
-for(var i = 0, cellYLength = m.round((y - 50) / CELL_HEIGHT); i < cellYLength; i++) {
-	for(var j = 0, cellXLength = m.round((x - 50) / CELL_WIDTH); j < cellXLength; j++) {
-		fr.appendChild(createPoint(px+= CELL_WIDTH, py));
+for(var i = 0, cellYLength = round((y - 50) / CELL_HEIGHT); i < cellYLength; i++) {
+	for(var j = 0, cellXLength = round((x - 50) / CELL_WIDTH); j < cellXLength; j++) {
+		fr.appendChild(createPointRef(px+= CELL_WIDTH, py));
 	}
-	// increment for next column & reset start value of the last row point
-	py+= CELL_HEIGHT;
+	py+= CELL_HEIGHT; // increment for next column & reset start value of the last row point
 	px = 0;
 }
-// append all points /w determined coordinates in a single auto-destroying
 paper.appendChild(fr);
+ 
+} initGrid();
+
 
 // =========
 // Events
 // =========
 d.addEventListener("mousedown", findPoint, false);
-// d.removeEventListener("mouseup", findNextPoint); // remove last mouseup event heandler from "findPoint"
 
 // =========
 // Methods
 // =========
 
-// =====
-// Func1
-// =====
-// Simply creates & appends attrs to a singe svg circle element
-// returns reference to the svg circle
-function createPoint(x, y) {
+function createPointRef(x, y) {
 	
 	var c = d[cSvgEl](xmlns, "circle");
 	c[setAttr]("cx", x);
@@ -101,61 +122,86 @@ function createPoint(x, y) {
 	return c;
 }
 
-// =====
-// Func2
-// =====
 // Implements logic for ...
 function findPoint(e) {
 	if(e.buttons !== 1) { return; } // terminate if not LMB
-	// var	evX = e.x || e.clientX,
-		// evY = e.y || e.clientY,
 
-	// var x1, y2, x2, y2, x3, y3, x4, y4,
-	// x3 = x1 = evX <= 30 ? evX : evX - 10;
-	// x2 = x4 = x - evX <= 30 ? evX : evX + 10;
-
-	// y2 = y1 = evY <= 30 ? evY: evY - 10;
-	// y4 = y3 = 50 - evY <= 30 ? evY : evY + 10;
-
-
-
-	var rmFNP = function(e) {
-		findNextPoint(e, pointArray);
-	};
+	// save func reference for removeEventListener
+	function rmFNP(e) {
+		findNextPoint(e);
+	}
 
 	d.addEventListener("mousemove", rmFNP, false);
 
 	// Terminates ...
 	d.addEventListener("mouseup", function rmMU(e) {
+		tempPoint = null;
 		d.removeEventListener("mousemove", rmFNP);
 		d.removeEventListener("mouseup", rmMU);
 	}, false);
+
+	return 0;
 }
 
-// =====
-// Func3
-// =====
-function findNextPoint(e ) {
-	var	endEvX = e.x || e.clientX,
-		endEvY = e.y || e.clientY,
-		point,
-		col = m.floor(endEvY / 50) * 50 > 1 ? m.round(endEvY / 50) * 50 : 50,
-		row = m.floor(endEvX / 50) * 50 > 1 ? m.round(endEvX / 50) * 50 : 50,
-		targetPointXY = {x, y};
+function findNextPoint(e) {
+	var	endX = e.x || e.clientX,
+		endY = e.y || e.clientY,
+		col    = round(endY / 50) * 50 > 1 ? round(endY / 50) * 50 : 50,
+		row    = round(endX / 50) * 50 > 1 ? round(endX / 50) * 50 : 50;
 
-	if(col && ((endEvY >= col-10 && endEvY <= col) || (endEvY <= col+10 && endEvY >= col))) {
-		if(row && ((endEvX >= row - 10 && endEvX <= row) || (endEvX <= row+10 && endEvX >= row))) {
-			targetPointXY.x = row;	
-			targetPointXY.y = col;
-			point = d.elementFromPoint(targetPointXY.x, targetPointXY.y);
+	if(col && ((endY >= col-15 && endY <= col) || (endY <= col+10 && endY >= col))) {
+		if(row && ((endX >= row - 15 && endX <= row) || (endX <= row+10 && endX >= row))) {
 
-			// console.log(point);
+			var vec = {},
+				point = new Point(row, col);
 
-			if(point.nodeName !== "svg" && point && point.attributes.fill.nodeValue !== "red") {
-				point[setAttr]("fill", "red");
-				pointArray.push(point);
+			if(point.ref.nodeName !== "svg" && point.ref.attributes.fill.nodeValue !== "red") {
+
+				point.ref[setAttr]("fill", "red");
+				vec = tempPoint ? tempPoint.vector(point) : vec;
+				// Linear Interpolation
+				if (vec.x || vec.y) { updatePath(vec); }
+
+				// Reset
+				tempPoint = vec ? point : tempPoint;
 				point = null;
+				vec = null;
 			}
 		}
 	}
+	return 0;
+}
+
+function calcVector(v) {
+
+
+
+}
+
+function addMultiAttr(el, arr) {
+	if (!el || !arr) return;
+	arr.forEach(function(attr) {
+		el[setAttr](attr.style, attr.val);
+	});
+	return;
+}
+
+function updatePath(vec) {
+	var path = document[cSvgEl](xmlns, "path"),
+	d = "M",
+	x1 = tempPoint.x, 
+	y1 = tempPoint.y, 
+	x2 = tempPoint.x + vec.x,
+	y2 = tempPoint.y + vec.y;
+
+	d += x1 + " " + y1 + " L" + x2 + " " + y2;
+
+	addMultiAttr(path, [
+	 {style: "d", val: d},
+	 {style: "stroke", val: "red"},
+	 {style: "stroke-width", val: "1"},
+	 {style: "fill", val: "red"}
+	 ]);
+
+	paper.insertAdjacentElement("afterbegin", path);
 }
