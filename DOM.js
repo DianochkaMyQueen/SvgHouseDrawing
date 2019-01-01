@@ -113,8 +113,8 @@ function findNextPoint(e) {
 		col  = round(endY / 35) * 35 > 1 ? round(endY / 35) * 35 : 35,
 		row  = round(endX / 35) * 35 > 1 ? round(endX / 35) * 35 : 35;
 
-	if(col && ((endY >= col - 15 && endY <= col) || (endY <= col + 10 && endY >= col))) {
-		if(row && ((endX >= row - 15 && endX <= row) || (endX <= row + 10 && endX >= row))) {
+	if(col && ((endY >= col - 10 && endY <= col) || (endY <= col + 10 && endY >= col))) {
+		if(row && ((endX >= row - 10 && endX <= row) || (endX <= row + 10 && endX >= row))) {
 
 			var vec = {},
 			    point = new Point(row, col);
